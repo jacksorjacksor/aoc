@@ -22,4 +22,4 @@ for i in range(256):
             result_store[i - 1] += fish_amount
     fish_dictionary = {key: value for key, value in result_store.items()}
 
-output = sum([value for key, value in fish_dictionary.items()])
+output = sum(fish_dictionary.values())
