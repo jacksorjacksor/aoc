@@ -1,7 +1,6 @@
 with open("input.txt", "r") as f:
     input_received = f.read().splitlines()
 
-dict_of_numbers_to_letters = {i: chr(i + 97) for i in range(7)}
 
 dict_of_simple_lengths_to_numbers = {
     # length: number
@@ -11,12 +10,26 @@ dict_of_simple_lengths_to_numbers = {
     7: 8,  # simple
 }
 
-dict_of_complex_lengths_to_numbers = {
-    5: [2, 3, 5],
-    6: [0, 6, 9],
-}
+list_of_numbers_to_bars_needed = [
+    [0, 1, 2, 4, 5, 6],
+    [2, 5],
+    [0, 2, 3, 4, 6],
+    [0, 2, 3, 5, 6],
+    [1, 2, 3, 5],
+    [0, 1, 3, 5, 6],
+    [0, 1, 3, 4, 5, 6],
+    [0, 2, 5],
+    [0, 1, 2, 3, 4, 5, 6],
+    [0, 1, 2, 3, 5, 6],
+]
+
+sum = 0
 
 for line in input_received:
+    output = line[line.find("|") + 1 :].strip()
+    output_to_decode = output.split(" ")
+    print(f"{output_to_decode=}")
+
     dict_of_letter_combinations = {i: "" for i in range(9)}
 
     dict_of_def_line_assignments = {i: None for i in range(7)}
@@ -43,7 +56,7 @@ for line in input_received:
         item for item in list_to_work_out if len(item) == 6
     ]
 
-    #################6###########################
+    ############################################
     # location [0]: the value in 7 that isn't in 1
     for letter in dict_of_letter_combinations[7]:
         if letter not in dict_of_letter_combinations[1]:
@@ -79,7 +92,6 @@ for line in input_received:
         for four_char_letter in dict_of_letter_combinations[4]:
             if four_char_letter not in item:
                 test = False
-                print(f"NOT 9: {item}")
         if test:
             # We've found 9
             string_of_9 = item
@@ -103,10 +115,8 @@ for line in input_received:
         for character in item:
             if character == dict_of_def_line_assignments[4]:
                 finder_of_4 = True
-                print(f"NOT 4: {item}")
         if finder_of_4:
             string_of_2 = item
-            print(string_of_2)
             # We can prove [5]
             # number 1 has [2] and [5].
             # number 2 has [2] not [5]
@@ -118,28 +128,43 @@ for line in input_received:
 
     ############################################
     ### 3
-    # location [1]
-    # first find the 5 chars which contain ONE - this will give TWO and FIVE
-    two_or_five = []
-    for item in dict_of_letter_combinations[5]:
-        checker = True
-        for letter in dict_of_letter_combinations[2]:
-            if letter not in item:
-                checker = False
-        if checker:
-            two_or_five.append(item)
-
-    print(two_or_five)
-    # Check which one is TWO -> TWO will have [5], FIVE will not
-    # TWO will be missing both 1 and 5
-
     # location [3]
+    # find THREE by checking all 5 digit numbers and checking that they contain both digits of ONE
+    for item in dict_of_letter_combinations[5]:
+        check = True
+        for letter in dict_of_letter_combinations[1]:
+            if letter not in item:
+                check = False
+        if check:
+            string_of_3 = item
+            for char in string_of_3:
+                if char not in dict_of_def_line_assignments.values():
+                    dict_of_def_line_assignments[3] = char
+    # Then check which value isn't already stored. That value is [3]
+
+    # location [1]
     ## 3 is the only 5 character number which contains both [2] and [5]
     ## From this we can work out position [3] as we already have values for the other [characters]
+    for item in dict_of_letter_combinations[8]:
+        if item not in dict_of_def_line_assignments.values():
+            dict_of_def_line_assignments[1] = item
 
-    print(dict_of_def_line_assignments)
-    print("...and now we're gone through the simple numbers:")
+    # swap around the dict
+    dict_of_letters_to_numbers = {
+        value: key for key, value in dict_of_def_line_assignments.items()
+    }
 
+    eventual_value = ""
     # THEN use the INPUT to establish the OUTPUT
+    for value in output_to_decode:
+        actual_number = []
+        for char in value:
+            actual_number.append(dict_of_letters_to_numbers[char])
+        actual_number.sort()
+        # Sort, then check
+        for index, bar_representation in enumerate(list_of_numbers_to_bars_needed):
+            if bar_representation == actual_number:
+                eventual_value += str(index)
+    sum += int(eventual_value)
 
-# print(sum(dict_of_counts.values()))
+print(f"{sum=}")
